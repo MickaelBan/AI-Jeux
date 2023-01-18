@@ -137,13 +137,13 @@ def Print(B):
         y = 7 - yy
         s = str(y)
         for x in range(8):
-            if     B[iPxy(x,y)] == 1 : 
+            if B[iPxy(x,y)] == 1 : 
                 s += '::'
             else:
                 s += '[]'
         print(s)
     s = ' '
-    for x in range(8): s += str(x)+str(x)
+    for x in range(8): s += str(x)+ " "
     print(s)
 
 
