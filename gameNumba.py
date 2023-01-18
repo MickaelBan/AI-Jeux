@@ -127,6 +127,12 @@ def Playout(B):
         idMove = B[id]
         Play(B,idMove)
 
+@jit(nopython=True)
+def PlayPvP(B): 
+    if B[-1] != 0:
+        id = random.randint(0,B[-1]-1)  # select random move
+        idMove = B[id]
+        Play(B,idMove)
 
 ##################################################################
 #
@@ -155,7 +161,6 @@ def Print(B):
     print(s)
 
 
-
 def PlayoutDebug(B,verbose=False):
     Print(B)
     while not Terminated(B):
@@ -167,7 +172,8 @@ def PlayoutDebug(B,verbose=False):
         Print(B)
         print("---------------------------------------")
 
-@numba.jit(nopython=True, parallel=True)
+
+@jit(nopython=True, parallel=True)
 def ParrallelPlayout(nb):
     Scores = np.empty(nb)
     for i in numba.prange(nb):
