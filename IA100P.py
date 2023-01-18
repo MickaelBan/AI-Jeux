@@ -73,8 +73,8 @@ def ParrallelPlayout(nb):
     StartingBoard  = np.zeros(144,dtype=np.uint8)
     for i in numba.prange(nb):
         B = StartingBoard.copy()
-        # Playout(B)
-        # Scores[i] = gn.GetScore(B)
+        Playout(B)
+        Scores[i] = gn.GetScore(B)
         pass
     return Scores.mean()
 
