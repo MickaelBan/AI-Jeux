@@ -91,6 +91,10 @@ _PossibleMoves(0,StartingBoard)   # prépare le gameboard de démarrage
 # def CreateNewGame()   => StartingBoard.copy()
 # def CopyGame(B)       => return B.copy()
 
+def CreateNewGame():
+    return StartingBoard.copy()
+
+
 @jit(nopython=True)
 def Terminated(B):
     return B[-1] == 0
