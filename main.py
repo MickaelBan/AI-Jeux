@@ -5,8 +5,8 @@ import time
 if __name__ == '__main__':
 ################################################################
 #           IA100P
-#  Version Debug Demo pour affichage et test 
-    print ("Test IA100P")
+#   
+    print ("\nTest IA100P")
     B = gn.StartingBoard.copy()
     IA100P.PlayoutDebug(B, False)
     print("Score : ", gn.GetScore(B))
@@ -37,7 +37,7 @@ if __name__ == '__main__':
 
 ################################################################
 #           IA1KP
-#  Version Debug Demo pour affichage et test 
+#  
     # print("Test IA1KP")
     # B = gn.StartingBoard.copy()
     # IA1KP.PlayoutDebug(B, True)
