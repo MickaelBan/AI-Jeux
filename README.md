@@ -4,18 +4,19 @@ installer python 3.10, créer un environement local et installer les requirement
 # IA random
 
 #### IARand vs IARand
-    IARand0: 50.9274 
-    IARand1: 49.0726
-    time: 5.898920059204102
-    nbsim/s: 169522.55496998932
+IARand0: 50.9274 
+IARand1: 49.0726
+time: 5.898920059204102
+nbsim/s: 169522.55496998932
 
-#### IA100P vs IARand
+### IA100P vs IARand
+##### Non parallélisé
     IA100P: 100.0 
     IARand: 0.0
     time: 103.03537583351135
     nbsim/s: 9.705404497343123
 
-#### IA100P vs IARand (parallélisé)
+##### Parallélisé
     IA100P: 99.9 
     IARand: 0.1
     time: 12.57038140296936
