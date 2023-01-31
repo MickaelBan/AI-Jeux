@@ -19,13 +19,13 @@ def play(B,nbSimulation = 100) -> int:
         nbMovesSim = B[-1]
         scoresMeans = np.zeros(nbSimulation)
         for index in range(nbMovesSim):
-            temp_score = 0
-            index = np.intp(index)
+            tmpScore = 0
+            index = np.intp(index) 
             idMove = B[index]
             for i in range(nbSimulation):
                 simulation = _playSimu(B, idMove)
-                temp_score += gn.GetScore(simulation)
-            scoresMeans[index] = temp_score/nbSimulation
+                tmpScore += gn.GetScore(simulation)
+            scoresMeans[index] = tmpScore/nbSimulation
         idBestMove = np.argmax(scoresMeans)
         bestMove = B[idBestMove]
         gn.Play(B, bestMove)
