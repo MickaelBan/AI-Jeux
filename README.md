@@ -1,5 +1,5 @@
 # AI-Jeux
-Le projet est coder avec python 3.10.
+Le projet est codé avec python 3.10.
 
 # IA random
 
