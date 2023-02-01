@@ -23,9 +23,9 @@ def  playout_IA100P_vs_IARand(B):
     while not gn.Terminated(B):        
         # player 0
         IA100P.play(B) # play one time
-        
+        gn.PlayPvP(B)
         # player 1
-        gn.PlayPvP(B) # play one time
+        # gn.PlayPvP(B) # play one time
         
     return gn.GetScore(B)
 
