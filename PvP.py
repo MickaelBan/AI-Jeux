@@ -1,5 +1,5 @@
 from game import gameNumba as gn
-from AIxP import * 
+from IA import * 
 import numba
 from numba import jit
 import numpy as np

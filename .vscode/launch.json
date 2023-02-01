@@ -10,11 +10,12 @@
             "justMyCode": false
         },
         {
-            "name": "Python: File",
+            "name": "Python: main file",
             "type": "python",
             "request": "launch",
-            "program": "${file}",
-            "justMyCode": true
+            "program": "${cwd}/main.py",
+            "console": "integratedTerminal",
+            "justMyCode": false
         }
     ]
 }
