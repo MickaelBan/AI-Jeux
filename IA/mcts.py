@@ -53,7 +53,7 @@ class MCTS():
             self.backpropagate(node, score)
 
         node, idMove = self.getBestMove(self.root, explorationC)
-        #print(self.root.visits,'timer:', time.time()-T0,'value:',initialState[-1]*1/56, "moves:",initialState[-1], 'score',gn.GetScore(node.gameState) )
+        # print(self.root.visits,'timer:', time.time()-T0,'value:',initialState[-1]*4/56, "moves:",initialState[-1], 'score',gn.GetScore(node.gameState) )
 
         return idMove
 
@@ -150,7 +150,7 @@ class MCTS():
         return random.choice(bestMoves)
 
 
-def play(B: np.ndarray, C = None):
+def play(B: np.ndarray, C = 1):
     if B[-1] != 0:
         mcts = MCTS()
         idMove = mcts.search(B,C)
@@ -158,7 +158,7 @@ def play(B: np.ndarray, C = None):
         return idMove
 
 
-def playout(B: np.ndarray,C = None):
+def playout(B: np.ndarray,C = 1):
     while not gn.Terminated(B):
         play(B,C)
 
