@@ -3,8 +3,8 @@ import game.gameNumba as gn
 import math
 import random
 import time
+import numba
 from numba import jit
-from .IA100P import play as playIA
 
 
 class Node():
@@ -39,26 +39,27 @@ class MCTS():
     def search(self, initialState, explorationC=1):
         # Current node, can be in starting game or a mid game
         self.root = Node(initialState)
-        nbsim = 0
+
+        
         T0 = time.time()
-        while time.time() - T0 < 0.5:
-            nbsim += 1
-        # for i in range(1000):
+        while time.time() - T0 < initialState[-1]*4/56:
             # select & expand
             node = self.select(self.root)
 
             # simulation
-            score = self.rollout(node.gameState)
+            score = self.rollout(node.gameState, nbSimulation=100)
 
             # backpropagate
             self.backpropagate(node, score)
-        # print(nbsim/(time.time()-T0))
-        Boar, idMove = self.getBestMove(self.root, explorationC)
-        gn.Play(initialState, idMove)
+
+        node, idMove = self.getBestMove(self.root, explorationC)
+        #print(self.root.visits,'timer:', time.time()-T0,'value:',initialState[-1]*1/56, "moves:",initialState[-1], 'score',gn.GetScore(node.gameState) )
+
         return idMove
 
     def select(self, node: Node) -> Node:
         while not node.isTerminal:
+
             # case where the node is fully expanded
             if node.isFullyExpanded:
                 # Favor exploration during selection
@@ -99,16 +100,19 @@ class MCTS():
         # debugging
         raise ('Should not get here!!!')
 
-    def rollout(self, gameState: np.ndarray) -> float:
-        # make random moves for both sides until terminal state of the game is reached 'nbSimulation' times and retunr a score mean
+    def rollout(self, gameState: np.ndarray, nbSimulation=100) -> float:
+        # make random moves for both sides until terminal state of the game is reached 'nbSimulation' times and return a score mean
+        scoreMean = self._simulateGame(gameState, nbSimulation)
+
+        return scoreMean
+
+    def _simulateGame(self, gameState: np.ndarray, nbSimulation):
         tmpScore = 0
-        nbSimulation = 100
         for i in range(nbSimulation):
             simulation = gameState.copy()
             gn.Playout(simulation)
             tmpScore += gn.GetScore(simulation)
-        scoreMean = tmpScore/nbSimulation
-        return scoreMean
+        return tmpScore/nbSimulation
 
     def backpropagate(self, node: Node, score: int):
         while node is not None:
@@ -142,19 +146,21 @@ class MCTS():
             # found as good move as already available
             elif abs(moveScore - bestScore) <= 1e-09:
                 bestMoves.append((childNode, idMove))
+
         return random.choice(bestMoves)
 
 
-def play(B: np.ndarray):
+def play(B: np.ndarray, C = None):
     if B[-1] != 0:
         mcts = MCTS()
-        idMove = mcts.search(B)
+        idMove = mcts.search(B,C)
+        gn.Play(B, idMove)
         return idMove
 
 
-def playout(B: np.ndarray):
+def playout(B: np.ndarray,C = None):
     while not gn.Terminated(B):
-        play(B)
+        play(B,C)
 
 
 def playout_debug(B: np.ndarray, verbose=True):

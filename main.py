@@ -2,35 +2,50 @@ from IA import *
 import game as gn
 import time
 import numba
+import matplotlib.pyplot as plt
 
+# @jit(nopython=True, parallel=True)
+# def ParrallelPlayout(nb, StartingBoard: np.ndarray):
+#     Scores = np.empty(nb)
+#     for i in numba.prange(nb):
+#         B = StartingBoard.copy()
+#         while not gn.Terminated(B):
+#             IA100P.play(B)
+#             IA1KP.play(B)
+#         Scores[i] = gn.GetScore(B)
+#     winrate0 = 0
+#     winrate1 = 0
+#     for score in Scores:
+#         if (score == 1):
+#             winrate0 += 1
+#         elif (score == -1):
+#             winrate1 += 1
+#     return winrate0*100/nb, winrate1*100/nb
 
-@jit(nopython=True, parallel=True)
-def ParrallelPlayout(nb, StartingBoard: np.ndarray):
-    Scores = np.empty(nb)
-    for i in numba.prange(nb):
-        B = StartingBoard.copy()
-        while not gn.Terminated(B):
-            IA100P.play(B)
-            IA1KP.play(B)
-        Scores[i] = gn.GetScore(B)
-    winrate0 = 0
-    winrate1 = 0
-    for score in Scores:
-        if (score == 1):
-            winrate0 += 1
-        elif (score == -1):
-            winrate1 += 1
-    return winrate0*100/nb, winrate1*100/nb
+def task(C,start,end):
+    mcts = MCTS()
+    dt = 0
+    score = 0
+    for sim in range(start,end):
+        Board = gn.CreateNewGame()
+        T0 = time.time()
+        while not gn.Terminated(Board):
+            idmove = mcts.search(Board,C)
+            gn.Play(Board,idmove)
+        dt += time.time() - T0
+        if gn.GetScore(Board) == 1 : 
+            score += 1
+    return (dt,score)
 
-@numba.njit
-def parallel_code(StartingBoard, nb):
-    Scores = np.zeros(nb)
-    for i in numba.prange(nb):
-        B = StartingBoard.copy()
-        mcts.playout(B)
-        Scores[i] = gn.GetScore(B)
-    return Scores
+def progress(count, total, suffix=''):
+    bar_len = 60
+    filled_len = int(round(bar_len * count / float(total)))
 
+    percents = round(100.0 * count / float(total), 1)
+    bar = '=' * filled_len + '-' * (bar_len - filled_len)
+    import sys
+    sys.stdout.write('[%s] %s%s ...%s\r' % (bar, percents, '%', suffix))
+    
 if __name__ == '__main__':
 
     # print ("\nTest IA100P")
@@ -71,13 +86,56 @@ if __name__ == '__main__':
 
     print("test mcts")
 
-    Board = gn.CreateNewGame()
-    T0 = time.time()
-    mcts.playout(Board)
-    dt = time.time()-T0
-    print("Score:",gn.GetScore(Board))
-    print("time:",dt)
+    # Board = gn.CreateNewGame()
+    # T0 = time.time()
+    # mcts.playout(Board)
+    # dt = time.time()-T0
+    # print("Score:",gn.GetScore(Board))
+    # print("time:",dt)
     
-    valueC = [i for i in np.arange(0.2,2,0.198)]
     
+    
+    
+    import multiprocessing as mp
+    
+    valuesC = np.arange(0.2,2,0.198)
+    nbSimulation = 200
+    tmps = []
+    winrates = []
+    nbProcess = mp.cpu_count()-1
+    print()
+    for i in range (len(valuesC)):
+        C = valuesC[i]
+        progress(i,valuesC.size)
+        chunkSize = nbSimulation // nbProcess
+        chunks = [(C, chunkSize * i, chunkSize * (i + 1)) for i in range(nbProcess)]
+        chunks[-1] = (C, chunkSize * (nbProcess - 1), nbSimulation)
+        
+        
+        with mp.Pool() as pool:
+            results = pool.starmap(task,chunks)
+        
+        dts    = [result[0] for result in results]
+        scores = [result[1] for result in results]
+        tmps.append(sum(dts)/nbSimulation)
+        winrates.append(sum(scores)*100/nbSimulation) 
+            
+        
+    print(tmps,winrates)
+    
+    plt.figure()
+    plt.subplot(211)
+    plt.plot(valuesC,tmps)
+    plt.xlabel("Coefficient d'exploration")
+    plt.ylabel("temps")
+    plt.title("Temps moyen d'une partie mcts vs mcts en fonction de C")
+    
+    plt.subplot(212)
+    plt.plot(valuesC,winrates) 
+    plt.xlabel("Coefficient d'exploration")
+    plt.title("winrates moyen d'une partie mcts vs mcts en fonction de C")
+    plt.ylabel("winrate")
+    
+    plt.subplots_adjust(hspace=1)
+    plt.show()     
     
