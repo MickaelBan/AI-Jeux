@@ -41,4 +41,14 @@ Le projet est codé avec python 3.10.
     time: 1198.9328608512878
     nbsim/s: 0.8340750617928364
 
+## MCTS
+
+    Pour cette partie nous avons implémenté l'algorithme MCTS. Pour nous avons décidé de de fixer le nombre de simulation de l'algorithme de MC à 100. Comme condition de fin nous avons choisi une condtion temporelle.
+    Notre algorithme de MCTS calcule un abre avec une constante d'esploration C=2 pendant l'exécution des cycles : sélection, exploration, simulation, remonté. Et pour sorti on utilise une contante C déterminer par l'utilisateur pour sélectionné les meileurs mouvements.
+
+    Pour comprendre la diférérenc une constante d'exploration C faible ou forte, on a simulé plusieurs parties de jeu en faisant un combats MCTS contre MCTS, tout deux avec les même paramêtre. On a supossé qu'on aurais un ratio de victoire de 1/2.
+
+    ![plot](./Figure_3.png)
+
+    
 
