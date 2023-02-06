@@ -196,7 +196,7 @@ def task(start,end):
                 board,idmove = play(Board,1)
                 boards.append(board)
                 moves.append(idmove)
-        return (boards,moves)
+        return boards,moves
     
 if __name__ == "__main__":
     
@@ -208,7 +208,7 @@ if __name__ == "__main__":
     
     #nb de données total: nbGames  *  nbSimByGame  * nbProcess * total de moves
     
-    T0 = time.time()
+
     print("Démarage générateur de donné")
     for i in range (nbGames):
         progress(i,nbGames)
@@ -217,12 +217,15 @@ if __name__ == "__main__":
         
         with mp.Pool() as pool:
             results = pool.starmap(task,chunks)
+        
+        boards = [i[0] for i in results]
+        moves = [i[1] for i in results]
+        
+        
+        data = ""
+        for id_precess in range(len(boards)):
+            for i in range(len(boards[id_precess])):
+                data += str(moves[id_precess][i])+ ";" + boards[id_precess][i].__str__() + "\n"
+                
+        writeDB("./data.txt",data)
     progress(nbGames,nbGames)
-    boards = [i[0] for i in results][0]  
-    moves = [i[1] for i in results][0]
-    
-    
-    data = ""
-    for i in range(len(boards)):
-        data += str(moves[i])+ ";" + boards[i].__str__() + "\n"
-    writeDB("./data.txt",data)
