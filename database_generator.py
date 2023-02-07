@@ -202,7 +202,7 @@ if __name__ == "__main__":
     
     import multiprocessing as mp
     
-    nbGames = 10
+    nbGames = 1250
     nbSimByGame = 1 
     nbProcess = mp.cpu_count()-4 #12 - 4
     
