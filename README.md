@@ -1,9 +1,15 @@
 # AI-Jeux
 Le projet est codé avec python 3.10.
 Matériel de travail: 
-    CPU : Rayson 5, 12 coeurs logiques
-    GPU : 
+    CPU : Rayson 5 3600X, 12 coeurs logiques
+    GPU : Radeon 6700XT
 
+##Instalation env
+installer python 3.10
+Dans le répertoire de travail:
+    py -m venv venv
+    .\venv\Scripts\activate
+    pip install _r \requirements.txt
 # IA random
 
 ### IARand vs IARand (Non parallélisé)
