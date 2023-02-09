@@ -10,7 +10,7 @@ Installer python 3.10. Dans le répertoire de travail:
 
     py -m venv venv
     .\venv\Scripts\activate
-    pip install _r \requirements.txt
+    pip install -r \requirements.txt
 
 
 # IA random
