@@ -7,8 +7,9 @@ import numba
 from numba import jit
 
 ######################################################
-###### this file is a modified version of mcts.py for generate a db for a AI's learnig
+# this file is a modified version of mcts.py for generate a db for a AI's learnig
 ######
+
 
 class Node():
     def __init__(self, gameState: np.ndarray, parent=None):
@@ -43,7 +44,6 @@ class MCTS():
         # Current node, can be in starting game or a mid game
         self.root = Node(initialState)
 
-        
         T0 = time.time()
         while time.time() - T0 < initialState[-1]*4.5/56:
             # select & expand
@@ -57,10 +57,7 @@ class MCTS():
 
         return self.getBestMove(self.root, explorationC)
         # print(self.root.visits,'timer:', time.time()-T0,'value:',initialState[-1]*4/56, "moves:",initialState[-1], 'score',gn.GetScore(node.gameState) )
-        
 
-    
-    
     def select(self, node: Node) -> Node:
         while not node.isTerminal:
 
@@ -154,78 +151,132 @@ class MCTS():
         return random.choice(bestMoves)
 
 
-def play(B: np.ndarray, C = 1):
+def play(B: np.ndarray, C=1):
     if B[-1] != 0:
         mcts = MCTS()
-        node,idMove = mcts.search(B,C)
+        node, idMove = mcts.search(B, C)
         gn.Play(B, idMove)
-        
-        return node.gameState[64:128].tolist(),idMove
+
+        return node.gameState[64:128].tolist(), idMove
 
 
-def writeDB(filepath:str, data):
-        import os
-        if os.path.exists(filepath):
-            with open(filepath,"a") as buf:
-                
-                buf.write(data)     
-        else :
-            with open(filepath,"w") as buf:
-                buf.write("idMove;Board\n")
-                buf.write(data)
-        return
+def writeDB(filepath: str, data):
+    import os
+    if os.path.exists(filepath):
+        with open(filepath, "a") as buf:
+
+            buf.write(data)
+    else:
+        with open(filepath, "w") as buf:
+            buf.write("idMove;Board\n")
+            buf.write(data)
+    return
+
 
 def progress(count, total, suffix=''):
     import sys
     bar_len = 60
-    
+
     filled_len = int(round(bar_len * count / float(total)))
     percents = round(100.0 * count / float(total), 1)
     bar = '=' * filled_len + '-' * (bar_len - filled_len)
-    if count == total: 
-        sys.stdout.write('[%s] %s%s ...%s\n' % (bar, percents, '%', suffix)) 
+    if count == total:
+        sys.stdout.write('[%s] %s%s ...%s\n' % (bar, percents, '%', suffix))
         return
     sys.stdout.write('[%s] %s%s ...%s\r' % (bar, percents, '%', suffix))
-  
-def task(start,end):
-        boards = []
-        moves = []
-        for sim in range(start,end):
-            Board = gn.CreateNewGame()
-            while not gn.Terminated(Board):
-                board,idmove = play(Board,1)
-                boards.append(board)
-                moves.append(idmove)
-        return boards,moves
-    
-if __name__ == "__main__":
-    
+
+
+def task(start, end):
+    boards = []
+    moves = []
+    for sim in range(start, end):
+        Board = gn.CreateNewGame()
+        while not gn.Terminated(Board):
+            board, idmove = play(Board, 1)
+            boards.append(board)
+            moves.append(idmove)
+    return boards, moves
+
+
+def generatorData():
     import multiprocessing as mp
-    
+
     nbGames = 1250
-    nbSimByGame = 1 
-    nbProcess = mp.cpu_count()-4 #12 - 4
-    
-    #nb de données total: nbGames  *  nbSimByGame  * nbProcess * total de moves
-    
+    nbSimByGame = 1
+    nbProcess = mp.cpu_count()-4  # 12 - 4
+
+    # nb de données total: nbGames  *  nbSimByGame  * nbProcess * total de moves
 
     print("Démarage générateur de donné")
-    for i in range (nbGames):
-        progress(i,nbGames)
+    for i in range(nbGames):
+        progress(i, nbGames)
         chunks = [(0, nbSimByGame) for i in range(nbProcess)]
-        
-        
+
         with mp.Pool() as pool:
-            results = pool.starmap(task,chunks)
-        
+            results = pool.starmap(task, chunks)
+
         boards = [i[0] for i in results]
         moves = [i[1] for i in results]
-        
-        
+
         data = ""
         for id_precess in range(len(boards)):
             for i in range(len(boards[id_precess])):
-                data += str(moves[id_precess][i])+ ";" + boards[id_precess][i].__str__() + "\n"
+                data += str(moves[id_precess][i]) + ";" + \
+                            boards[id_precess][i].__str__() + "\n"
+
+        writeDB("./data.txt", data)
+    progress(nbGames, nbGames)
+
+def task2(start,end,datas):
+    data  = ""
+    for line in range(start,end):
+        line:str = datas[line]
+        idMove, board = line.replace('\n', '').split(";")
+        try:
+            idMove = int(idMove)
+            player = int(idMove / 100)
+            negativeBoard = ""
+            size = 0
+            for i in range (len(board)):
+                if board[i] == '0':
+                    size += 1
+                    negativeBoard += '1'
+
+                elif board[i] == '1':
+                    size += 1
+                    negativeBoard += '0'
+
+                else:
+                    negativeBoard += board[i]
+
+            playerBoard = [player for i in range(size)].__str__()
                 
-        writeDB("./data.txt",data)
-    progress(nbGames,nbGames)
+            data += str(idMove) + ";" + board + ";" + negativeBoard + ";" + playerBoard + "\n"
+                
+        except:
+            pass  # pass the first line
+    return data
+def shedulData(nbProcess):
+    import multiprocessing as mp
+    
+    with open("./data.txt", 'r') as file:
+        datas = file.readlines()
+
+    data_size = len(datas)
+    print("treating")
+    
+    chunkSize = data_size // nbProcess
+    chunks = [(chunkSize * i, chunkSize * (i + 1),datas) for i in range(nbProcess)]
+    chunks[-1] = (chunkSize * (nbProcess - 1), data_size,datas)
+    with mp.Pool() as pool:
+            results = pool.starmap(task2, chunks)
+    msg = ""
+    for i in results : msg+= i 
+    writeDB("./data_treated.txt",msg)  
+    print("finish")
+          
+if __name__ == "__main__":
+
+    # generatorData()
+
+    shedulData()
